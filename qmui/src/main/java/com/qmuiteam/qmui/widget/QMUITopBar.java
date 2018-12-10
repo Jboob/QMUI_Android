@@ -28,7 +28,9 @@ import com.qmuiteam.qmui.util.QMUIResHelper;
 import com.qmuiteam.qmui.util.QMUIViewHelper;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 通用的顶部 Bar。提供了以下功能：
@@ -51,6 +53,7 @@ public class QMUITopBar extends RelativeLayout {
 
     private List<View> mLeftViewList;
     private List<View> mRightViewList;
+    private Map<Integer, View> mViewMaps;
 
     private int mTopBarSeparatorColor;
     private int mTopBarBgColor;
@@ -113,6 +116,7 @@ public class QMUITopBar extends RelativeLayout {
         mRightLastViewId = DEFAULT_VIEW_ID;
         mLeftViewList = new ArrayList<>();
         mRightViewList = new ArrayList<>();
+        mViewMaps = new HashMap<>();
     }
 
     private void init(Context context, AttributeSet attrs, int defStyleAttr) {
@@ -457,9 +461,15 @@ public class QMUITopBar extends RelativeLayout {
      * @return 返回生成的按钮
      */
     public QMUIAlphaImageButton addRightImageButton(int drawableResId, int viewId) {
-        QMUIAlphaImageButton rightButton = generateTopBarImageButton(drawableResId);
-        this.addRightView(rightButton, viewId, generateTopBarImageButtonLayoutParams());
-        return rightButton;
+        QMUIAlphaImageButton rightButton = getViewById(viewId);
+        if (null != rightButton) {
+            return rightButton;
+        } else {
+            rightButton = generateTopBarImageButton(drawableResId);
+            mViewMaps.put(viewId, rightButton);
+            this.addRightView(rightButton, viewId, generateTopBarImageButtonLayoutParams());
+            return rightButton;
+        }
     }
 
     /**
@@ -470,9 +480,15 @@ public class QMUITopBar extends RelativeLayout {
      * @return 返回生成的按钮
      */
     public QMUIAlphaImageButton addLeftImageButton(int drawableResId, int viewId) {
-        QMUIAlphaImageButton leftButton = generateTopBarImageButton(drawableResId);
-        this.addLeftView(leftButton, viewId, generateTopBarImageButtonLayoutParams());
-        return leftButton;
+        QMUIAlphaImageButton leftButton = getViewById(viewId);
+        if (null != leftButton) {
+            return leftButton;
+        } else {
+            leftButton = generateTopBarImageButton(drawableResId);
+            mViewMaps.put(viewId, leftButton);
+            this.addLeftView(leftButton, viewId, generateTopBarImageButtonLayoutParams());
+            return leftButton;
+        }
     }
 
     /**
@@ -740,6 +756,22 @@ public class QMUITopBar extends RelativeLayout {
             }
             mTitleContainerView.layout(titleContainerViewLeft, titleContainerViewTop, titleContainerViewLeft + titleContainerViewWidth, titleContainerViewTop + titleContainerViewHeight);
         }
+    }
+
+    /**
+     * 根据 View id 获取View
+     * @param resId 指定的View Id
+     * @param <T>
+     * @return
+     */
+    private <T extends View> T getViewById(int resId) {
+        if (null != mViewMaps) {
+            T t = (T) mViewMaps.get(resId);
+            if (null != t) {
+                return t;
+            }
+        }
+        return null;
     }
 
 }
